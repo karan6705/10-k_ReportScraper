@@ -1,3 +1,5 @@
+// frontend/src/App.jsx
+
 import React, { useState } from 'react';
 import './index.css';  // Tailwind imports
 
@@ -8,9 +10,6 @@ export default function App() {
   const [outputUrl, setOutputUrl] = useState('');
   const [error, setError] = useState('');
 
-  // 🔧 Hard‑coded for now so it always calls your Render backend:
-  const API_BASE = 'https://one0-k-reportscraper.onrender.com';
-
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
     setError('');
@@ -20,15 +19,13 @@ export default function App() {
   const handleSubmit = async () => {
     if (!file) return;
     setLoading(true);
-
     const form = new FormData();
     form.append('report', file);
     form.append('model', model);
 
-    console.log('🛠️ POST →', `${API_BASE}/api/extract`);
-
     try {
-      const resp = await fetch(`${API_BASE}/api/extract`, {
+       const apiBase = import.meta.env.VITE_API_URL || '';
+      const resp = await fetch(`${apiBase}/api/extract`, {
         method: 'POST',
         body: form,
       });
@@ -51,14 +48,12 @@ export default function App() {
             Annual Report Extractor
           </h1>
           <p className="text-lg text-gray-600 mb-8">
-            Instantly turn any SEC 10-K PDF into a beautifully formatted summary
-            and data model. Upload your filing, choose your AI model, and
-            download your report in seconds.
+            Instantly turn any SEC 10-K PDF into a beautifully formatted summary and data model.
+            Upload your filing, choose your AI model, and download your report in seconds.
           </p>
           <button
             onClick={() =>
-              document
-                .getElementById('upload-zone')
+              document.getElementById('upload-zone')
                 .scrollIntoView({ behavior: 'smooth' })
             }
             className="px-8 py-3 bg-indigo-600 text-white rounded-full shadow hover:bg-indigo-700 transition"
@@ -74,7 +69,9 @@ export default function App() {
           <h2 className="text-2xl font-semibold mb-4">Extract Your Report</h2>
 
           {/* Drag & Drop Box */}
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-6 hover:border-indigo-400 transition">
+          <div
+            className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-6 hover:border-indigo-400 transition"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="mx-auto mb-2 h-12 w-12 text-gray-400"
@@ -89,9 +86,7 @@ export default function App() {
                 d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M12 12v8m0-8l-3 3m3-3l3 3M16 5l-4-4m0 0L8 5m4-4v12"
               />
             </svg>
-            <p className="text-gray-600">
-              Drag & drop your 10-K PDF here, or
-            </p>
+            <p className="text-gray-600">Drag & drop your 10-K PDF here, or</p>
             <label className="mt-2 inline-block px-4 py-2 bg-indigo-600 text-white rounded cursor-pointer hover:bg-indigo-700">
               Choose File
               <input
@@ -113,7 +108,7 @@ export default function App() {
             </label>
             <select
               value={model}
-              onChange={(e) => setModel(e.target.value)}
+              onChange={e => setModel(e.target.value)}
               className="w-full border-gray-300 rounded-lg p-3 focus:ring-indigo-500 focus:border-indigo-500"
             >
               <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
@@ -131,7 +126,9 @@ export default function App() {
           </button>
 
           {/* Error & Download Link */}
-          {error && <p className="mt-4 text-red-500 text-center">{error}</p>}
+          {error && (
+            <p className="mt-4 text-red-500 text-center">{error}</p>
+          )}
           {outputUrl && (
             <a
               href={outputUrl}
@@ -155,3 +152,4 @@ export default function App() {
     </div>
 );
 }
+
