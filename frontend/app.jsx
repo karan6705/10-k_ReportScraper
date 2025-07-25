@@ -1,5 +1,3 @@
-// frontend/src/App.jsx
-
 import React, { useState } from 'react';
 import './index.css';  // Tailwind imports
 
@@ -24,7 +22,8 @@ export default function App() {
     form.append('model', model);
 
     try {
-       const apiBase = import.meta.env.VITE_API_URL || '';
+      // Hardcoded backend URL
+      const apiBase = "https://one0-k-reportscraper.onrender.com";
       const resp = await fetch(`${apiBase}/api/extract`, {
         method: 'POST',
         body: form,
@@ -150,6 +149,5 @@ export default function App() {
         </div>
       </footer>
     </div>
-);
+  );
 }
-
