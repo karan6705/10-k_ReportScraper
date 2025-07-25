@@ -1,4 +1,3 @@
-FORCE_ERROR_TO_DETECT_CHANGES!!!
 // frontend/src/App.jsx
 // NUCLEAR REBUILD - Different structure to force cache bust
 // Timestamp: 2025-07-25T11:35:00Z
