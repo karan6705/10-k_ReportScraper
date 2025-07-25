@@ -24,20 +24,29 @@ export default function App() {
     form.append('model', model);
 
     try {
-      // Environment-aware API URL
-      const apiUrl = window.location.hostname === 'localhost' 
-        ? '/api/extract'  // Uses Vite proxy in development
-        : 'https://one0-k-reportscraper.onrender.com/extract';  // Direct call in production
+      console.log('Calling backend at: https://one0-k-reportscraper.onrender.com/extract');
       
-      const resp = await fetch(apiUrl, {
+      // HARDCODED URL - This should work since backend is confirmed working
+      const resp = await fetch('https://one0-k-reportscraper.onrender.com/extract', {
         method: 'POST',
         body: form,
       });
       
-      if (!resp.ok) throw new Error(`Server error ${resp.status}`);
-      const { pdfUrl } = await resp.json();
-      setOutputUrl(pdfUrl);
+      console.log('Response status:', resp.status);
+      console.log('Response ok:', resp.ok);
+      
+      if (!resp.ok) {
+        const errorText = await resp.text();
+        console.error('Error response:', errorText);
+        throw new Error(`Server error ${resp.status}: ${errorText}`);
+      }
+      
+      const responseData = await resp.json();
+      console.log('Success response:', responseData);
+      
+      setOutputUrl(responseData.pdfUrl);
     } catch (err) {
+      console.error('Error details:', err);
       setError(err.message);
     } finally {
       setLoading(false);
