@@ -24,11 +24,13 @@ export default function App() {
     form.append('model', model);
 
     try {
-       const apiBase = import.meta.env.VITE_API_URL || '';
-      const resp = await fetch(`${apiBase}/api/extract`, {
-        method: 'POST',
-        body: form,
-      });
+       const resp = await fetch(
+  'https://one0-k-reportscraper.onrender.com/api/extract',
+  {
+    method: 'POST',
+    body: form,
+  }
+);
       if (!resp.ok) throw new Error(`Server error ${resp.status}`);
       const { pdfUrl } = await resp.json();
       setOutputUrl(pdfUrl);
