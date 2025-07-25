@@ -1,10 +1,13 @@
 // frontend/src/App.jsx
-// Build timestamp: 2025-07-25T06:35:00Z - Force rebuild
+// NUCLEAR REBUILD - Different structure to force cache bust
+// Timestamp: 2025-07-25T11:35:00Z
 
 import React, { useState } from 'react';
-import './index.css';  // Tailwind imports
+import './index.css';
 
-export default function App() {
+const BACKEND_URL = 'https://one0-k-reportscraper.onrender.com/extract';
+
+function App() {
   const [file, setFile] = useState(null);
   const [model, setModel] = useState('gemini-2.0-flash');
   const [loading, setLoading] = useState(false);
@@ -17,38 +20,39 @@ export default function App() {
     setOutputUrl('');
   };
 
-  const handleSubmit = async () => {
+  const processFile = async () => {
     if (!file) return;
+    
     setLoading(true);
-    const form = new FormData();
-    form.append('report', file);
-    form.append('model', model);
+    const formData = new FormData();
+    formData.append('report', file);
+    formData.append('model', model);
 
     try {
-      console.log('Starting extraction...');
+      console.log('=== NEW VERSION DEPLOYED ===');
+      console.log('Backend URL:', BACKEND_URL);
       console.log('File:', file.name);
       console.log('Model:', model);
-      console.log('Calling backend at: https://one0-k-reportscraper.onrender.com/extract');
       
-      const resp = await fetch('https://one0-k-reportscraper.onrender.com/extract', {
+      const response = await fetch(BACKEND_URL, {
         method: 'POST',
-        body: form,
+        body: formData,
       });
       
-      console.log('Response status:', resp.status);
-      console.log('Response ok:', resp.ok);
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
       
-      if (!resp.ok) {
-        const errorText = await resp.text();
+      if (!response.ok) {
+        const errorText = await response.text();
         console.error('Error response:', errorText);
-        throw new Error(`Server error ${resp.status}: ${errorText}`);
+        throw new Error(`Server error ${response.status}: ${errorText}`);
       }
       
-      const responseData = await resp.json();
-      console.log('Success response:', responseData);
+      const data = await response.json();
+      console.log('Success response:', data);
       
-      setOutputUrl(responseData.pdfUrl);
-      setError(''); // Clear any previous errors
+      setOutputUrl(data.pdfUrl);
+      setError('');
     } catch (err) {
       console.error('Error details:', err);
       setError(err.message);
@@ -59,11 +63,11 @@ export default function App() {
 
   return (
     <div className="font-sans text-gray-800">
-      {/* Hero */}
+      {/* Hero Section */}
       <section className="bg-white py-20">
         <div className="max-w-4xl mx-auto text-center px-4">
           <h1 className="text-4xl font-extrabold mb-4">
-            Annual Report Extractor v2.0
+            Annual Report Extractor v3.0
           </h1>
           <p className="text-lg text-gray-600 mb-8">
             Instantly turn any SEC 10-K PDF into a beautifully formatted summary and data model.
@@ -81,15 +85,13 @@ export default function App() {
         </div>
       </section>
 
-      {/* Upload & Options */}
+      {/* Upload Section */}
       <section id="upload-zone" className="bg-gray-50 py-16">
         <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
           <h2 className="text-2xl font-semibold mb-4">Extract Your Report</h2>
 
-          {/* Drag & Drop Box */}
-          <div
-            className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-6 hover:border-indigo-400 transition"
-          >
+          {/* File Upload */}
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center mb-6 hover:border-indigo-400 transition">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="mx-auto mb-2 h-12 w-12 text-gray-400"
@@ -119,7 +121,7 @@ export default function App() {
             )}
           </div>
 
-          {/* Model Selector */}
+          {/* Model Selection */}
           <div className="mb-6">
             <label className="block text-sm font-medium mb-1">
               Select AI Model
@@ -134,16 +136,16 @@ export default function App() {
             </select>
           </div>
 
-          {/* Extract Button */}
+          {/* Process Button */}
           <button
-            onClick={handleSubmit}
+            onClick={processFile}
             disabled={loading || !file}
             className="w-full py-3 bg-indigo-600 text-white font-medium rounded-lg shadow hover:bg-indigo-700 disabled:opacity-50 transition"
           >
             {loading ? 'Processing Report…' : 'Extract & Download'}
           </button>
 
-          {/* Error & Download Link */}
+          {/* Results */}
           {error && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-600 text-sm">{error}</p>
@@ -177,3 +179,5 @@ export default function App() {
     </div>
   );
 }
+
+export default App;
