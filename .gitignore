@@ -1,0 +1,6 @@
+# don’t track local secrets
+.env*
+
+# don’t track any Python virtual‐env
+.venv/
+backend/.venv/
