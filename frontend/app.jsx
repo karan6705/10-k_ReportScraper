@@ -24,9 +24,11 @@ export default function App() {
     form.append('model', model);
 
     try {
+      console.log('Starting extraction...');
+      console.log('File:', file.name);
+      console.log('Model:', model);
       console.log('Calling backend at: https://one0-k-reportscraper.onrender.com/extract');
       
-      // HARDCODED URL - This should work since backend is confirmed working
       const resp = await fetch('https://one0-k-reportscraper.onrender.com/extract', {
         method: 'POST',
         body: form,
@@ -45,6 +47,7 @@ export default function App() {
       console.log('Success response:', responseData);
       
       setOutputUrl(responseData.pdfUrl);
+      setError(''); // Clear any previous errors
     } catch (err) {
       console.error('Error details:', err);
       setError(err.message);
@@ -141,18 +144,25 @@ export default function App() {
 
           {/* Error & Download Link */}
           {error && (
-            <p className="mt-4 text-red-500 text-center">{error}</p>
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm">{error}</p>
+            </div>
           )}
           {outputUrl && (
-            <a
-              href={outputUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              download
-              className="mt-4 block text-center text-indigo-600 underline hover:text-indigo-800"
-            >
-              Download Your Extracted PDF
-            </a>
+            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <a
+                href={outputUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                className="text-green-700 font-medium hover:text-green-800 flex items-center justify-center"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Download Your Extracted PDF
+              </a>
+            </div>
           )}
         </div>
       </section>
