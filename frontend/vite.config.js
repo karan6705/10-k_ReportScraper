@@ -10,15 +10,7 @@ export default defineConfig({
     host: true,             // Listen on 0.0.0.0
     port: 5173,             // Development port
     strictPort: true,
-    // Proxy for local development only
-    proxy: {
-      '/api': {
-        target: 'http://localhost:8000',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/api/, '')
-      },
-    },
+    // Removed proxy configuration to force direct backend calls
     allowedHosts: [
       'one0-k-reportscraper-2.onrender.com'
     ],
