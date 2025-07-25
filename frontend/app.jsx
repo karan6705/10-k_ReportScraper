@@ -24,14 +24,16 @@ export default function App() {
     form.append('model', model);
 
     try {
-      // FIXED: Removed /api prefix from the endpoint
-      const resp = await fetch(
-        'https://one0-k-reportscraper.onrender.com/extract',
-        {
-          method: 'POST',
-          body: form,
-        }
-      );
+      // Environment-aware API URL
+      const apiUrl = window.location.hostname === 'localhost' 
+        ? '/api/extract'  // Uses Vite proxy in development
+        : 'https://one0-k-reportscraper.onrender.com/extract';  // Direct call in production
+      
+      const resp = await fetch(apiUrl, {
+        method: 'POST',
+        body: form,
+      });
+      
       if (!resp.ok) throw new Error(`Server error ${resp.status}`);
       const { pdfUrl } = await resp.json();
       setOutputUrl(pdfUrl);
