@@ -9,7 +9,7 @@ export default function App() {
   const [outputUrl, setOutputUrl] = useState('');
   const [error, setError] = useState('');
 
-  // 👉 For now, hard‑code your Render backend URL here to verify it works:
+  // 🔧 Hard‑code your Render backend URL here:
   const API_BASE = 'https://one0-k-reportscraper.onrender.com';
 
   const handleFileChange = (e) => {
@@ -26,13 +26,17 @@ export default function App() {
     form.append('report', file);
     form.append('model', model);
 
+    // confirm what URL we're calling
     console.log('🛠️ Using API_BASE:', API_BASE);
+
     try {
       const resp = await fetch(`${API_BASE}/api/extract`, {
         method: 'POST',
         body: form,
       });
-      if (!resp.ok) throw new Error(`Server error ${resp.status}`);
+      if (!resp.ok) {
+        throw new Error(`Server error ${resp.status}`);
+      }
       const { pdfUrl } = await resp.json();
       setOutputUrl(pdfUrl);
     } catch (err) {
@@ -153,5 +157,5 @@ export default function App() {
         </div>
       </footer>
     </div>
-);
+  );
 }
