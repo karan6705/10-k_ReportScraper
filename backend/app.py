@@ -2,74 +2,149 @@ import os
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware  # Add this import
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from your_pipeline import generate_annual_report
 
-# 1️⃣ Load env
+# Load environment variables
 load_dotenv('.env')
 
-# 2️⃣ Create the app
+# Create FastAPI app
 app = FastAPI(
-    title="Annual Report Extractor API"
+    title="Annual Report Extractor API",
+    description="API for extracting and processing 10-K reports",
+    version="1.0.0"
 )
 
-# 🔥 ADD CORS MIDDLEWARE - This fixes the connection issue!
+# CORS middleware - CRITICAL for frontend-backend communication
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://one0-k-reportscraper-2.onrender.com",  # Your frontend URL
         "http://localhost:5173",  # Vite dev server
-        "http://localhost:3000",  # React dev server (backup)
+        "http://localhost:3000",  # React dev server
+        "http://localhost:8080",  # Alternative dev port
     ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
-# 🔥 ADD ROOT ENDPOINT - This fixes the 404 errors!
+# Root endpoint for health check
 @app.get("/")
 async def root():
     return {
         "message": "Annual Report Extractor API is running",
         "status": "healthy",
+        "version": "1.0.0",
         "endpoints": {
             "extract": "/extract",
-            "reports": "/reports/"
+            "reports": "/reports/",
+            "health": "/"
         }
     }
 
-# 3️⃣ Serve any generated PDF from the backend root under /reports
-#    (PDFs are written into this same folder by your_pipeline)
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "service": "Annual Report Extractor"}
+
+# Serve generated PDFs
 app.mount(
     "/reports",
     StaticFiles(directory=".", html=False),
     name="reports",
 )
 
+# Main extraction endpoint
 @app.post("/extract")
-async def extract(
-    request: Request,  # <-- Added to get the base URL
+async def extract_report(
+    request: Request,
     report: UploadFile = File(...),
     model: str = Form("gemini-2.0-flash")
 ):
     """
-    Accepts a 10-K PDF upload + model selector, runs the pipeline,
-    writes out `annual_report_<Company>_<Year>.pdf` in this directory,
-    and returns a full URL to download it.
+    Extract and process a 10-K PDF report.
+    
+    Args:
+        request: FastAPI request object
+        report: Uploaded PDF file
+        model: AI model to use for processing
+    
+    Returns:
+        JSON response with download URL for processed report
     """
-    # save upload to a temp file
+    # Validate file type
+    if not report.filename.lower().endswith('.pdf'):
+        raise HTTPException(400, "File must be a PDF")
+    
+    # Validate model selection
+    valid_models = ["gemini-2.0-flash", "gemini-2.0-pro"]
+    if model not in valid_models:
+        raise HTTPException(400, f"Model must be one of: {valid_models}")
+    
+    # Save uploaded file to temporary location
     tmp_path = f"/tmp/{report.filename}"
-    with open(tmp_path, "wb") as f:
-        f.write(await report.read())
     try:
-        # generate and return the filename
-        out_name = generate_annual_report(tmp_path, model)
+        with open(tmp_path, "wb") as f:
+            content = await report.read()
+            f.write(content)
+        
+        print(f"Saved file: {report.filename} ({len(content)} bytes)")
+        print(f"Using model: {model}")
+        
+    except Exception as e:
+        raise HTTPException(500, f"Failed to save uploaded file: {str(e)}")
+    
+    try:
+        # Process the report using your pipeline
+        output_filename = generate_annual_report(tmp_path, model)
+        print(f"Generated report: {output_filename}")
+        
     except Exception as e:
         import traceback
-        traceback.print_exc()  # Print full error to server log
-        raise HTTPException(500, f"Extraction failed: {e}")
+        print(f"Pipeline error: {str(e)}")
+        traceback.print_exc()
+        raise HTTPException(500, f"Report extraction failed: {str(e)}")
     
-    # build the full URL for the client to download (works for both local and production)
-    download_url = str(request.base_url) + f"reports/{out_name}"
-    return JSONResponse({"pdfUrl": download_url})
+    finally:
+        # Clean up temporary file
+        try:
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
+        except Exception as e:
+            print(f"Warning: Could not remove temp file {tmp_path}: {e}")
+    
+    # Build download URL
+    base_url = str(request.base_url).rstrip('/')
+    download_url = f"{base_url}/reports/{output_filename}"
+    
+    return JSONResponse({
+        "success": True,
+        "message": "Report extracted successfully",
+        "pdfUrl": download_url,
+        "filename": output_filename,
+        "model_used": model
+    })
+
+# Error handlers
+@app.exception_handler(404)
+async def not_found_handler(request: Request, exc):
+    return JSONResponse(
+        status_code=404,
+        content={
+            "error": "Endpoint not found",
+            "message": f"The endpoint {request.url.path} does not exist",
+            "available_endpoints": ["/", "/extract", "/reports/", "/health"]
+        }
+    )
+
+@app.exception_handler(500)
+async def internal_error_handler(request: Request, exc):
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal server error",
+            "message": "An unexpected error occurred while processing your request"
+        }
+    )
