@@ -1,7 +1,5 @@
-# backend/app.py
-
 import os
-from fastapi import FastAPI, File, UploadFile, Form, HTTPException
+from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
@@ -23,9 +21,9 @@ app.mount(
     name="reports",
 )
 
-
 @app.post("/api/extract")
 async def extract(
+    request: Request,  # <-- Added to get the base URL
     report: UploadFile = File(...),
     model: str = Form("gemini-2.0-flash")
 ):
@@ -47,6 +45,6 @@ async def extract(
         traceback.print_exc()  # Print full error to server log
         raise HTTPException(500, f"Extraction failed: {e}")
 
-    # build the full URL for the client to download
-    download_url = f"http://localhost:8000/reports/{out_name}"
+    # build the full URL for the client to download (works for both local and production)
+    download_url = str(request.base_url) + f"reports/{out_name}"
     return JSONResponse({"pdfUrl": download_url})
