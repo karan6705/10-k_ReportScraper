@@ -1,3 +1,4 @@
+// src/App.jsx
 import React, { useState } from 'react';
 import './index.css';  // Tailwind imports
 
@@ -8,7 +9,8 @@ export default function App() {
   const [outputUrl, setOutputUrl] = useState('');
   const [error, setError] = useState('');
 
-  // Pull BASE URL from Vite env, or fallback to your Render service
+  // Read from Vite env (set VITE_API_BASE_URL in .env or Vercel),
+  // fall back to your Render URL if unset
   const API_BASE =
     import.meta.env.VITE_API_BASE_URL ||
     'https://one0-k-reportscraper.onrender.com';
@@ -22,6 +24,7 @@ export default function App() {
   const handleSubmit = async () => {
     if (!file) return;
     setLoading(true);
+
     const form = new FormData();
     form.append('report', file);
     form.append('model', model);
@@ -31,7 +34,9 @@ export default function App() {
         method: 'POST',
         body: form,
       });
-      if (!resp.ok) throw new Error(`Server error ${resp.status}`);
+      if (!resp.ok) {
+        throw new Error(`Server error ${resp.status}`);
+      }
       const { pdfUrl } = await resp.json();
       setOutputUrl(pdfUrl);
     } catch (err) {
@@ -152,5 +157,5 @@ export default function App() {
         </div>
       </footer>
     </div>
-  );
+);
 }
