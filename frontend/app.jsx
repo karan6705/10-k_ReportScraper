@@ -24,13 +24,14 @@ export default function App() {
     form.append('model', model);
 
     try {
-       const resp = await fetch(
-  'https://one0-k-reportscraper.onrender.com/api/extract',
-  {
-    method: 'POST',
-    body: form,
-  }
-);
+      // FIXED: Removed /api prefix from the endpoint
+      const resp = await fetch(
+        'https://one0-k-reportscraper.onrender.com/extract',
+        {
+          method: 'POST',
+          body: form,
+        }
+      );
       if (!resp.ok) throw new Error(`Server error ${resp.status}`);
       const { pdfUrl } = await resp.json();
       setOutputUrl(pdfUrl);
@@ -152,6 +153,5 @@ export default function App() {
         </div>
       </footer>
     </div>
-);
+  );
 }
-
