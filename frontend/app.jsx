@@ -1,4 +1,5 @@
 // frontend/src/App.jsx
+// Build timestamp: 2025-07-25T06:35:00Z - Force rebuild
 
 import React, { useState } from 'react';
 import './index.css';  // Tailwind imports
@@ -62,7 +63,7 @@ export default function App() {
       <section className="bg-white py-20">
         <div className="max-w-4xl mx-auto text-center px-4">
           <h1 className="text-4xl font-extrabold mb-4">
-            Annual Report Extractor
+            Annual Report Extractor v2.0
           </h1>
           <p className="text-lg text-gray-600 mb-8">
             Instantly turn any SEC 10-K PDF into a beautifully formatted summary and data model.
