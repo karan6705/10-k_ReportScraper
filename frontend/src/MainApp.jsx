@@ -1,5 +1,4 @@
 // frontend/src/MainApp.jsx
-// Compact Single-Page Beautiful UI - Version 8.0
 // Timestamp: 2025-07-26T04:40:00Z
 
 import React, { useState } from 'react';
