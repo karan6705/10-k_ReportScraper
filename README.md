@@ -35,8 +35,8 @@ A FastAPI service that ingests a U.S. SEC 10-K PDF, uses Google Gemini GenAI to 
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/karan6705/10-K-Report-Summarizer.git
-cd 10-K-Report-Summarizer/backend
+git clone https://github.com/karan6705/10-k_ReportScraper.git
+cd 10-k_ReportScraper/backend
 
 # 2. (Optional) Create & activate a virtual environment
 python -m venv .venv
