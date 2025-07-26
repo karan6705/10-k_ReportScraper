@@ -1,5 +1,4 @@
 // frontend/src/MainApp.jsx
-// Final Clean Professional Website - No Overlaps
 // Version: FINAL
 
 import React, { useState } from 'react';
