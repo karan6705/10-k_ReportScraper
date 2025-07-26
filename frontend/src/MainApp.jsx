@@ -102,7 +102,7 @@ const MainApp = () => {
         {/* Hero Section */}
         <div className="text-center mb-16">
           <h1 className="text-5xl font-bold text-white mb-6">
-            Transform Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">10-K Reports</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">ReportExtractor Pro</span>
           </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
             Upload SEC filings and get instant AI-powered analysis with comprehensive insights
@@ -153,9 +153,9 @@ const MainApp = () => {
 
                 {/* AI Model Selection */}
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-4">AI Model</h3>
+                  <h3 className="text-xl font-semibold text-white mb-4">Select AI Model</h3>
                   <div className="space-y-3">
-                    <label className={`block p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    <label className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all ${
                       aiModel === 'gemini-2.0-flash' 
                         ? 'border-blue-500 bg-blue-500 bg-opacity-20' 
                         : 'border-gray-500 border-opacity-30 hover:border-gray-400'
@@ -166,20 +166,15 @@ const MainApp = () => {
                         value="gemini-2.0-flash"
                         checked={aiModel === 'gemini-2.0-flash'}
                         onChange={(e) => setAiModel(e.target.value)}
-                        className="sr-only"
+                        className="w-4 h-4 text-blue-600 mr-3"
                       />
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-4 h-4 rounded-full border-2 ${
-                          aiModel === 'gemini-2.0-flash' ? 'border-blue-500 bg-blue-500' : 'border-gray-400'
-                        }`}></div>
-                        <div>
-                          <p className="text-white font-medium">Gemini 2.0 Flash</p>
-                          <p className="text-gray-400 text-sm">Fast processing</p>
-                        </div>
+                      <div>
+                        <p className="text-white font-medium">⚡ Gemini 2.0 Flash</p>
+                        <p className="text-gray-400 text-sm">Fast processing • Quick insights</p>
                       </div>
                     </label>
                     
-                    <label className={`block p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                    <label className={`flex items-center p-4 rounded-lg border-2 cursor-pointer transition-all ${
                       aiModel === 'gemini-2.0-pro' 
                         ? 'border-blue-500 bg-blue-500 bg-opacity-20' 
                         : 'border-gray-500 border-opacity-30 hover:border-gray-400'
@@ -190,16 +185,11 @@ const MainApp = () => {
                         value="gemini-2.0-pro"
                         checked={aiModel === 'gemini-2.0-pro'}
                         onChange={(e) => setAiModel(e.target.value)}
-                        className="sr-only"
+                        className="w-4 h-4 text-blue-600 mr-3"
                       />
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-4 h-4 rounded-full border-2 ${
-                          aiModel === 'gemini-2.0-pro' ? 'border-blue-500 bg-blue-500' : 'border-gray-400'
-                        }`}></div>
-                        <div>
-                          <p className="text-white font-medium">Gemini 2.0 Pro</p>
-                          <p className="text-gray-400 text-sm">Deep analysis</p>
-                        </div>
+                      <div>
+                        <p className="text-white font-medium">🧠 Gemini 2.0 Pro</p>
+                        <p className="text-gray-400 text-sm">Deep analysis • Detailed insights</p>
                       </div>
                     </label>
                   </div>
