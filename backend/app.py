@@ -16,16 +16,11 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware - CRITICAL for frontend-backend communication
+# CORS middleware - FIXED to allow all origins for testing
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://one0-k-reportscraper-2.onrender.com",  # Your frontend URL
-        "http://localhost:5173",  # Vite dev server
-        "http://localhost:3000",  # React dev server
-        "http://localhost:8080",  # Alternative dev port
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],  # Allow all origins for testing
+    allow_credentials=False,  # Must be False when using "*"
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
@@ -74,6 +69,11 @@ async def extract_report(
     Returns:
         JSON response with download URL for processed report
     """
+    print(f"🚀 EXTRACT ENDPOINT HIT!")
+    print(f"📁 File: {report.filename}")
+    print(f"🤖 Model: {model}")
+    print(f"📊 File size: {report.size if hasattr(report, 'size') else 'unknown'} bytes")
+    
     # Validate file type
     if not report.filename.lower().endswith('.pdf'):
         raise HTTPException(400, "File must be a PDF")
@@ -90,20 +90,22 @@ async def extract_report(
             content = await report.read()
             f.write(content)
         
-        print(f"Saved file: {report.filename} ({len(content)} bytes)")
-        print(f"Using model: {model}")
+        print(f"✅ Saved file: {report.filename} ({len(content)} bytes)")
+        print(f"🔧 Using model: {model}")
         
     except Exception as e:
+        print(f"❌ Failed to save file: {str(e)}")
         raise HTTPException(500, f"Failed to save uploaded file: {str(e)}")
     
     try:
+        print(f"🔄 Starting pipeline processing...")
         # Process the report using your pipeline
         output_filename = generate_annual_report(tmp_path, model)
-        print(f"Generated report: {output_filename}")
+        print(f"✅ Generated report: {output_filename}")
         
     except Exception as e:
         import traceback
-        print(f"Pipeline error: {str(e)}")
+        print(f"❌ Pipeline error: {str(e)}")
         traceback.print_exc()
         raise HTTPException(500, f"Report extraction failed: {str(e)}")
     
@@ -112,12 +114,15 @@ async def extract_report(
         try:
             if os.path.exists(tmp_path):
                 os.remove(tmp_path)
+                print(f"🗑️ Cleaned up temp file: {tmp_path}")
         except Exception as e:
-            print(f"Warning: Could not remove temp file {tmp_path}: {e}")
+            print(f"⚠️ Warning: Could not remove temp file {tmp_path}: {e}")
     
     # Build download URL
     base_url = str(request.base_url).rstrip('/')
     download_url = f"{base_url}/reports/{output_filename}"
+    
+    print(f"🎉 SUCCESS! Download URL: {download_url}")
     
     return JSONResponse({
         "success": True,
